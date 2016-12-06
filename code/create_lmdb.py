@@ -74,7 +74,7 @@ with in_db.begin(write=True) as in_txn:
             label = 1
 		elif 'Rotuse' in img_path:
 			label = 2
-		elif if 'SvOnosBaznycia' in img_path:
+		elif 'SvOnosBaznycia' in img_path:
 			label = 3
 		else 
 			label = 4
@@ -95,7 +95,7 @@ with in_db.begin(write=True) as in_txn:
         img = transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT)
         if 'Arkikatedra' in img_path:
             label = 0
-        elif if 'GediminoPilis' in img_path:
+        elif 'GediminoPilis' in img_path:
             label = 1
 		elif 'Rotuse' in img_path:
 			label = 2
