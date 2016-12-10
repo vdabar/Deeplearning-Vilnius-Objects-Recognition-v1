@@ -23,6 +23,19 @@ import lmdb
 #Size of images
 IMAGE_WIDTH = 227
 IMAGE_HEIGHT = 227
+#define labels
+labels =  {
+    'SvOnosBaznycia':['1']
+    ,'Arkikatedra':['2']
+    ,'GediminoPilis':['3']
+}
+def getLabel(path):
+    head, tail = os.path.split(path)
+    try:
+        label =Int(get(labels[tail[:tail.index('_')]]))
+    except ex :
+        print 'wrong label'
+    return label
 
 def transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT):
 
@@ -46,38 +59,35 @@ def make_datum(img, label):
         label=label,
         data=np.rollaxis(img, 2).tostring())
 
-train_lmdb = '/home/ubuntu/Deeplearning-Vilnius-Objects-Recognition/input/train_lmdb'
-validation_lmdb = '/home/ubuntu/Deeplearning-Vilnius-Objects-Recognition/input/validation_lmdb'
+train_lmdb = '/home/ubuntu/Deeplearning-Vilnius-Objects-Recognition-v1/input/train_lmdb'
+validation_lmdb = '/home/ubuntu/Deeplearning-Vilnius-Objects-Recognition-v1/input/validation_lmdb'
 
 os.system('rm -rf  ' + train_lmdb)
 os.system('rm -rf  ' + validation_lmdb)
 
 
 train_data = [img for img in glob.glob("../input/train/*jpg")]
-test_data = [img for img in glob.glob("../input/test1/*jpg")]
+transformed_data = [img for img in glob.glob("../input/train2/*jpg")]
 
 #Shuffle train_data
 random.shuffle(train_data)
 
-print 'Creating train_lmdb'
+
+
+for in_idx, img_path in enumerate(train_data):
+    img = cv2.imread(img_path, cv2.IMREAD_COLOR)
+    img = transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT)
+    new_path = img_path.replace("train","train2")
+    cv2.imwrite(new_path, img)
+
 
 in_db = lmdb.open(train_lmdb, map_size=int(1e12))
 with in_db.begin(write=True) as in_txn:
-    for in_idx, img_path in enumerate(train_data):
+    for in_idx, img_path in enumerate(transformed_data):
         if in_idx %  6 == 0:
             continue
         img = cv2.imread(img_path, cv2.IMREAD_COLOR)
-        img = transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT)
-        if 'Arkikatedra' in img_path:
-            label = 0
-        elif 'GediminoPilis' in img_path:
-            label = 1
-		elif 'Rotuse' in img_path:
-			label = 2
-		elif 'SvOnosBaznycia' in img_path:
-			label = 3
-		else 
-			label = 4
+        label = getLabel(img_path)
         datum = make_datum(img, label)
         in_txn.put('{:0>5d}'.format(in_idx), datum.SerializeToString())
         print '{:0>5d}'.format(in_idx) + ':' + img_path
@@ -88,21 +98,11 @@ print '\nCreating validation_lmdb'
 
 in_db = lmdb.open(validation_lmdb, map_size=int(1e12))
 with in_db.begin(write=True) as in_txn:
-    for in_idx, img_path in enumerate(train_data):
+    for in_idx, img_path in enumerate(transformed_data):
         if in_idx % 6 != 0:
             continue
         img = cv2.imread(img_path, cv2.IMREAD_COLOR)
-        img = transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT)
-        if 'Arkikatedra' in img_path:
-            label = 0
-        elif 'GediminoPilis' in img_path:
-            label = 1
-		elif 'Rotuse' in img_path:
-			label = 2
-		elif 'SvOnosBaznycia' in img_path:
-			label = 3
-		else 
-			label = 4
+        label = getLabel(img_path)
         datum = make_datum(img, label)
         in_txn.put('{:0>5d}'.format(in_idx), datum.SerializeToString())
         print '{:0>5d}'.format(in_idx) + ':' + img_path
