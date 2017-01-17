@@ -45,15 +45,15 @@ Reading mean image, caffe model and its weights
 '''
 #Read mean image
 mean_blob = caffe_pb2.BlobProto()
-with open('/home/ubuntu/deeplearning-cats-dogs-tutorial/input/mean.binaryproto') as f:
+with open('/home/ubuntu/Deeplearning-Vilnius-Objects-Recognition-v1/input/mean.binaryproto') as f:
     mean_blob.ParseFromString(f.read())
 mean_array = np.asarray(mean_blob.data, dtype=np.float32).reshape(
     (mean_blob.channels, mean_blob.height, mean_blob.width))
 
 
 #Read model architecture and trained model's weights
-net = caffe.Net('/home/ubuntu/deeplearning-cats-dogs-tutorial/caffe_models/caffe_model_1/caffenet_deploy_1.prototxt',
-                '/home/ubuntu/deeplearning-cats-dogs-tutorial/caffe_models/caffe_model_1/caffe_model_1_iter_10000.caffemodel',
+net = caffe.Net('/home/ubuntu/Deeplearning-Vilnius-Objects-Recognition-v1/caffe_models/caffe_model_1/caffenet_deploy_1.prototxt',
+                '/home/ubuntu/Deeplearning-Vilnius-Objects-Recognition-v1/caffe_models/caffe_model_1/caffe_model_1_iter_5000.caffemodel',
                 caffe.TEST)
 
 #Define image transformers
